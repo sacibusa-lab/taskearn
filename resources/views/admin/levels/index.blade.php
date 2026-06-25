@@ -9,8 +9,9 @@
             <h2 class="text-lg font-semibold text-gray-900">Configure Levels</h2>
         </div>
         <div class="p-6">
-            <form action="{{ route('admin.settings.update') }}" method="POST" class="mb-8">
+            <form action="{{ route('admin.levels.update-all') }}" method="POST">
                 @csrf
+                @method('PUT')
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -19,7 +20,6 @@
                                 <th class="pb-3 font-medium">Description</th>
                                 <th class="pb-3 font-medium">Deposit Amount ($)</th>
                                 <th class="pb-3 font-medium">Weekly Payout ($)</th>
-                                <th class="pb-3 font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -28,23 +28,19 @@
                                     <td class="py-4 font-bold text-gray-900 text-lg">Level {{ $level->level }}</td>
                                     <td class="py-4 text-gray-500">{{ $level->description }}</td>
                                     <td class="py-4">
-                                        <form id="level-form-{{ $level->id }}" action="{{ route('admin.levels.update', $level) }}" method="POST" class="flex items-center space-x-2">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="number" name="deposit_amount" value="{{ $level->deposit_amount }}" step="0.01" min="0" class="w-28 rounded-lg border-gray-300 text-sm">
+                                        <input type="number" name="levels[{{ $level->id }}][deposit_amount]" value="{{ $level->deposit_amount }}" step="0.01" min="0" class="w-28 rounded-lg border-gray-300 text-sm">
                                     </td>
                                     <td class="py-4">
-                                            <input type="number" name="weekly_payout" value="{{ $level->weekly_payout }}" step="0.01" min="0" class="w-28 rounded-lg border-gray-300 text-sm">
-                                    </td>
-                                    <td class="py-4">
-                                            <input type="hidden" name="description" value="{{ $level->description }}">
-                                            <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-xs font-medium">Save</button>
-                                        </form>
+                                        <input type="number" name="levels[{{ $level->id }}][weekly_payout]" value="{{ $level->weekly_payout }}" step="0.01" min="0" class="w-28 rounded-lg border-gray-300 text-sm">
+                                        <input type="hidden" name="levels[{{ $level->id }}][description]" value="{{ $level->description }}">
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">Save All Changes</button>
                 </div>
             </form>
         </div>

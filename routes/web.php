@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Levels
         Route::get('/levels', [AdminLevelController::class, 'index'])->name('levels.index');
+        Route::put('/levels', [AdminLevelController::class, 'updateAll'])->name('levels.update-all');
         Route::put('/levels/{level}', [AdminLevelController::class, 'update'])->name('levels.update');
 
         // Referrals

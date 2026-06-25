@@ -41,7 +41,7 @@
                     <div>
                         <div class="inline-flex items-center space-x-2 bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>Trusted by {{ number_format(\App\Models\User::count()) }}+ users</span>
+                            <span>Trusted by 3000+ users</span>
                         </div>
                         <h1 class="text-4xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
                             Earn Money<br>

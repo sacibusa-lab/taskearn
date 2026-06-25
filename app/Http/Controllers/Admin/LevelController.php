@@ -30,4 +30,26 @@ class LevelController extends Controller
 
         return redirect()->route('admin.levels.index')->with('success', "Level {$level->level} updated successfully.");
     }
+
+    public function updateAll(Request $request)
+    {
+        $request->validate([
+            'levels.*.deposit_amount' => ['required', 'numeric', 'min:0'],
+            'levels.*.weekly_payout' => ['required', 'numeric', 'min:0'],
+            'levels.*.description' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $levelsData = $request->input('levels', []);
+
+        foreach ($levelsData as $id => $data) {
+            $level = Level::findOrFail($id);
+            $level->update([
+                'deposit_amount' => $data['deposit_amount'],
+                'weekly_payout' => $data['weekly_payout'],
+                'description' => $data['description'] ?? $level->description,
+            ]);
+        }
+
+        return redirect()->route('admin.levels.index')->with('success', 'All levels updated successfully.');
+    }
 }
