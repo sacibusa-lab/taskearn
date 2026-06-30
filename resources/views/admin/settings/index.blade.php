@@ -6,7 +6,8 @@
     $activeTab = request('tab', 'global');
     $tabLabels = [
         'global' => ['icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'label' => 'Global'],
-        'paystack' => ['icon' => 'M12 11c0-1.933-1.567-3.5-3.5-3.5S5 9.067 5 11c0 1.933 1.567 3.5 3.5 3.5S12 12.933 12 11zm7 0c0-1.933-1.567-3.5-3.5-3.5S12 9.067 12 11c0 1.933 1.567 3.5 3.5 3.5S19 12.933 19 11zm-3.5 9.5c1.933 0 3.5-1.567 3.5-3.5s-1.567-3.5-3.5-3.5S12 15.067 12 17s1.567 3.5 3.5 3.5z', 'label' => 'Paystack'],
+
+        'apis' => ['icon' => 'M13 10V3L4 14h7v7l9-11h-7z', 'label' => 'APIs'],
         'currency' => ['icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'label' => 'Currency'],
         'theme' => ['icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01', 'label' => 'Theme & Code'],
         'maintenance' => ['icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'label' => 'Maintenance'],
@@ -115,6 +116,94 @@
                         </div>
                     </div>
 
+                @elseif($activeTab === 'apis')
+                    {{-- ===== APIS TAB ===== --}}
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">🔌 API Integrations</h3>
+                            <p class="text-sm text-gray-500 mb-6">Manage third-party API keys for payment processing and AI content generation.</p>
+                        </div>
+
+                        {{-- Paystack Section --}}
+                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.933-1.567-3.5-3.5-3.5S5 9.067 5 11c0 1.933 1.567 3.5 3.5 3.5S12 12.933 12 11zm7 0c0-1.933-1.567-3.5-3.5-3.5S12 9.067 12 11c0 1.933 1.567 3.5 3.5 3.5S19 12.933 19 11zm-3.5 9.5c1.933 0 3.5-1.567 3.5-3.5s-1.567-3.5-3.5-3.5S12 15.067 12 17s1.567 3.5 3.5 3.5z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-gray-900">Paystack</h4>
+                                    <p class="text-xs text-gray-500">Payment processing, DVA, and bank verification</p>
+                                </div>
+                                <div class="ml-auto flex items-center space-x-1.5 text-xs">
+                                    <div class="w-2 h-2 rounded-full {{ !empty($tabSettings->firstWhere('key', 'paystack_secret_key')?->value) ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                                    <span class="text-gray-500">{{ !empty($tabSettings->firstWhere('key', 'paystack_secret_key')?->value) ? 'Connected' : 'Not set' }}</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($tabSettings->filter(fn($s) => str_starts_with($s->key, 'paystack')) as $setting)
+                                    <div>
+                                        <label for="settings[{{ $setting->key }}]" class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ ucwords(str_replace('_', ' ', str_replace('paystack_', '', $setting->key))) }}
+                                        </label>
+                                        <div class="flex space-x-2">
+                                            <input type="password" name="settings[{{ $setting->key }}]" id="{{ $setting->key }}" value="{{ $setting->value }}"
+                                                   class="flex-1 rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
+                                                   placeholder="Enter {{ str_replace('_', ' ', $setting->key) }}">
+                                            <button type="button" onclick="togglePw('{{ $setting->key }}')" class="p-2 text-gray-400 hover:text-gray-600">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            </button>
+                                        </div>
+                                        @if($setting->description)
+                                            <p class="mt-1 text-xs text-gray-500">{{ $setting->description }}</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                            @if(!empty($tabSettings->firstWhere('key', 'paystack_dva_enabled')?->value) && $tabSettings->firstWhere('key', 'paystack_dva_enabled')->value === 'true')
+                                <p class="text-xs text-green-600 mt-3 flex items-center">
+                                    <svg class="w-3.5 h-3.5 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Dedicated Virtual Accounts enabled
+                                </p>
+                            @endif
+                        </div>
+
+                        {{-- OpenRouter Section --}}
+                        @php
+                            $orKeySetting = $tabSettings->firstWhere('key', 'openrouter_api_key');
+                            $orKey = $orKeySetting->value ?? '';
+                        @endphp
+                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                            <div class="flex items-center space-x-3 mb-5">
+                                <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-gray-900">OpenRouter</h4>
+                                    <p class="text-xs text-gray-500">AI content generation for Read & Earn articles</p>
+                                </div>
+                                <div class="ml-auto flex items-center space-x-1.5 text-xs">
+                                    <div class="w-2 h-2 rounded-full {{ !empty($orKey) ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                                    <span class="text-gray-500">{{ !empty($orKey) ? 'Connected' : 'Not set' }}</span>
+                                </div>
+                            </div>
+
+                            <label for="settings[openrouter_api_key]" class="block text-sm font-medium text-gray-700 mb-1.5">
+                                OpenRouter API Key
+                            </label>
+                            <div class="flex space-x-2">
+                                <input type="password" name="settings[openrouter_api_key]" id="openrouter_api_key" value="{{ $orKey }}"
+                                       class="flex-1 rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm h-12 px-4"
+                                       placeholder="sk-or-v1-...">
+                                <button type="button" onclick="togglePw('openrouter_api_key')" class="px-4 py-2 border border-gray-300 rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Show/Hide">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </button>
+                            </div>
+                            <p class="mt-1.5 text-xs text-gray-400">
+                                🔑 Get a free API key at <a href="https://openrouter.ai/keys" target="_blank" class="text-indigo-600 hover:underline font-medium">openrouter.ai/keys</a>
+                            </p>
+                        </div>
+                    </div>
+
                 @elseif($activeTab === 'global')
                     {{-- ===== GLOBAL SETTINGS TAB ===== --}}
                     <div class="space-y-8">
@@ -154,12 +243,28 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach($tabSettings as $setting)
                                 @if(in_array($setting->key, ['site_logo', 'site_favicon']))
-                                    <div>
-                                        <label for="settings[{{ $setting->key }}]" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <div x-data="{ preview: '{{ $setting->value }}' }">
+                                        <label for="uploads[{{ $setting->key }}]" class="block text-sm font-medium text-gray-700 mb-1">
                                             {{ ucwords(str_replace('_', ' ', $setting->key)) }}
                                         </label>
-                                        <div class="flex space-x-2">
-                                            <input type="text" name="settings[{{ $setting->key }}]" id="settings[{{ $setting->key }}]" value="{{ $setting->value }}" class="flex-1 rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="https://example.com/logo.png">
+                                        <div class="flex items-center space-x-3">
+                                            <label class="cursor-pointer flex-1">
+                                                <div class="flex items-center space-x-2 px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-xl hover:border-indigo-400 hover:bg-indigo-50/50 transition-all">
+                                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                                    <span class="text-sm text-gray-500">Click to upload</span>
+                                                </div>
+                                                <input type="file" name="uploads[{{ $setting->key }}]" id="uploads[{{ $setting->key }}]" accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp,image/x-icon" class="hidden" @change="const file = $event.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = e => preview = e.target.result; reader.readAsDataURL(file); }">
+                                            </label>
+                                            @if($setting->value)
+                                                <button type="button" onclick="document.getElementById('uploads[{{ $setting->key }}]').value = ''; document.querySelector('[name=\'settings[{{ $setting->key }}]\']').value = ''; this.closest('[x-data]').__x.$data.preview = ''" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Remove">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <input type="hidden" name="settings[{{ $setting->key }}]" value="{{ $setting->value }}">
+                                        <div class="mt-2 text-center">
+                                            <img :src="preview" alt="Preview" class="max-h-12 mx-auto rounded" x-show="preview">
+                                            <p class="text-xs text-gray-400 mt-1" x-show="!preview">No file uploaded</p>
                                         </div>
                                         @if($setting->description)
                                             <p class="mt-1 text-xs text-gray-500">{{ $setting->description }}</p>

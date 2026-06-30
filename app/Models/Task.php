@@ -18,26 +18,34 @@ class Task extends Model
         'status',
         'total_slots',
         'remaining_slots',
+        'category',
+        'is_featured',
     ];
 
     protected $casts = [
         'reward' => 'decimal:2',
         'task_meta' => 'array',
+        'is_featured' => 'boolean',
     ];
+
+    public static function categories(): array
+    {
+        return [
+            'general' => 'General',
+            'daily' => 'Daily',
+            'premium' => 'Premium',
+        ];
+    }
+
+    public function getCategoryLabelAttribute(): string
+    {
+        return self::categories()[$this->category] ?? ucfirst($this->category);
+    }
 
     public static function taskTypes(): array
     {
         return [
-            'text' => 'Text Submission',
-            'url' => 'URL / Link',
             'youtube' => 'Watch YouTube Video',
-            'video' => 'Watch Video (Other)',
-            'image' => 'Image Upload',
-            'file' => 'File Upload',
-            'social_share' => 'Social Media Share',
-            'quiz' => 'Quiz / Questions',
-            'code' => 'Code Submission',
-            'custom' => 'Custom Task',
         ];
     }
 
@@ -75,5 +83,41 @@ class Task extends Model
             $q->where('total_slots', 0)
               ->orWhere('remaining_slots', '>', 0);
         });
+    }
+
+    public function scopeDaily($query)
+    {
+        return $query->where('category', 'daily');
+    }
+
+    public function scopePremium($query)
+    {
+        return $query->where('category', 'premium');
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeGeneral($query)
+    {
+        return $query->where('category', 'general');
+    }
+
+    /**
+     * Check if a user has completed this task.
+     */
+    public function isCompletedBy(User $user): bool
+    {
+        return $this->submissions()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Get the user's submission for this task.
+     */
+    public function userSubmission(User $user)
+    {
+        return $this->submissions()->where('user_id', $user->id)->first();
     }
 }

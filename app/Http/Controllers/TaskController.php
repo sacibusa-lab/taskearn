@@ -14,22 +14,44 @@ class TaskController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        $tasks = Task::active()->available()
-            ->whereDoesntHave('submissions', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })
-            ->where(function ($q) use ($user) {
-                if ($user->level) {
-                    $q->whereNull('level_id')->orWhere('level_id', '<=', $user->level->id);
-                } else {
-                    $q->whereNull('level_id');
-                }
-            })->latest()->paginate(12);
+
+        $levelFilter = function ($q) use ($user) {
+            if ($user->level) {
+                $q->whereNull('level_id')->orWhere('level_id', '<=', $user->level->id);
+            } else {
+                $q->whereNull('level_id');
+            }
+        };
+
+        $availableBase = Task::active()->available()
+            ->whereDoesntHave('submissions', fn($q) => $q->where('user_id', $user->id));
+
+        // Categorized tasks
+        $featuredTasks = (clone $availableBase)->featured()->where($levelFilter)->latest()->take(4)->get();
+        $dailyTasks = (clone $availableBase)->daily()->where($levelFilter)->latest()->take(6)->get();
+        $premiumTasks = (clone $availableBase)->premium()->where($levelFilter)->latest()->take(6)->get();
+        $generalTasks = (clone $availableBase)->general()->where($levelFilter)->latest()->paginate(12);
+
+        // Progress tracking
+        $completedCount = $user->taskSubmissions()->where('status', 'approved')->count();
+        $pendingCount = $user->taskSubmissions()->where('status', 'pending')->count();
+        $rejectedCount = $user->taskSubmissions()->where('status', 'rejected')->count();
+        $totalSubmitted = $completedCount + $pendingCount + $rejectedCount;
 
         $mySubmissions = $user->taskSubmissions()->with('task')->latest()->take(10)->get();
 
-        return view('tasks.index', compact('tasks', 'mySubmissions'));
+        $progress = [
+            'total_submitted' => $totalSubmitted,
+            'completed' => $completedCount,
+            'pending' => $pendingCount,
+            'rejected' => $rejectedCount,
+            'completion_rate' => $totalSubmitted > 0 ? round(($completedCount / $totalSubmitted) * 100) : 0,
+        ];
+
+        return view('tasks.index', compact(
+            'featuredTasks', 'dailyTasks', 'premiumTasks', 'generalTasks',
+            'mySubmissions', 'progress'
+        ));
     }
 
     public function show(Task $task)

@@ -40,6 +40,10 @@
         @if($user->hasDeposited())
             @if($user->isDepositLocked())
                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">🔒 Deposit locked until {{ $user->deposit_locked_until?->format('M d, Y') }}</span>
+                <form action="{{ route('admin.users.unlock-deposit', $user) }}" method="POST" class="inline" onsubmit="return confirm('Unlock {{ $user->name }}\'s deposit?')">
+                    @csrf
+                    <button type="submit" class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors cursor-pointer">🔓 Unlock Now</button>
+                </form>
             @else
                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">🔓 Deposit unlocked</span>
             @endif
@@ -47,6 +51,22 @@
             <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">No deposit yet</span>
         @endif
     </div>
+
+    {{-- Achievement Badges --}}
+    @php $userBadges = $user->badges; @endphp
+    @if($userBadges->isNotEmpty())
+        <div class="mb-6">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">🏅 Earned Badges</p>
+            <div class="flex flex-wrap gap-2">
+                @foreach($userBadges as $badge)
+                    <span class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-full text-xs font-semibold text-amber-800 shadow-sm" title="Awarded {{ $badge->pivot->awarded_at?->format('M d, Y') }}">
+                        <span class="text-sm">{{ $badge->icon }}</span>
+                        <span>{{ $badge->name }}</span>
+                    </span>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     {{-- Stats Grid --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

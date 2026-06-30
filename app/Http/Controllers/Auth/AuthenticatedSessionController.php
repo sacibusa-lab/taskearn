@@ -28,6 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Track login IP and user agent for security
+        $user = Auth::user();
+        if ($user) {
+            $user->trackLogin($request->ip(), $request->userAgent() ?? '');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

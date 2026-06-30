@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\WithdrawalController as AdminWithdrawalController
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\LevelController as AdminLevelController;
 use App\Http\Controllers\Admin\ReferralController as AdminReferralController;
+use App\Http\Controllers\Admin\RewardController as AdminRewardController;
 use App\Http\Controllers\Admin\TaskController as AdminTaskController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\FestiveProgramController as AdminFestiveProgramController;
@@ -106,6 +107,10 @@ Route::middleware(['auth'])->group(function () {
         // Referrals
         Route::get('/referrals', [AdminReferralController::class, 'index'])->name('referrals.index');
         Route::post('/referrals', [AdminReferralController::class, 'update'])->name('referrals.update');
+
+        // Rewards
+        Route::get('/rewards', [AdminRewardController::class, 'index'])->name('rewards.index');
+        Route::post('/rewards', [AdminRewardController::class, 'update'])->name('rewards.update');
 
         // Tasks
         Route::get('/tasks', [AdminTaskController::class, 'index'])->name('tasks.index');

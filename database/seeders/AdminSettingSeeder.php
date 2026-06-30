@@ -47,13 +47,6 @@ class AdminSettingSeeder extends Seeder
                 'description' => 'Number of days for new user probation period',
             ],
             [
-                'key' => 'referral_commission_rate',
-                'value' => '10',
-                'type' => 'number',
-                'group' => 'global',
-                'description' => 'Percentage commission earned on referred users deposits',
-            ],
-            [
                 'key' => 'max_referral_levels',
                 'value' => '3',
                 'type' => 'number',
@@ -67,34 +60,41 @@ class AdminSettingSeeder extends Seeder
                 'group' => 'global',
                 'description' => 'Auto-approve task submissions without admin review',
             ],
+            [
+                'key' => 'openrouter_api_key',
+                'value' => '',
+                'type' => 'string',
+                'group' => 'apis',
+                'description' => 'OpenRouter API key for AI content generation (get one at openrouter.ai)',
+            ],
 
             // === Paystack (DVA & Payments) ===
             [
                 'key' => 'paystack_public_key',
                 'value' => '',
                 'type' => 'string',
-                'group' => 'paystack',
+                'group' => 'apis',
                 'description' => 'Paystack Live Public Key',
             ],
             [
                 'key' => 'paystack_secret_key',
                 'value' => '',
                 'type' => 'string',
-                'group' => 'paystack',
+                'group' => 'apis',
                 'description' => 'Paystack Live Secret Key',
             ],
             [
                 'key' => 'paystack_dva_enabled',
                 'value' => 'false',
                 'type' => 'boolean',
-                'group' => 'paystack',
+                'group' => 'apis',
                 'description' => 'Enable Dedicated Virtual Accounts (DVA) for deposits',
             ],
             [
                 'key' => 'paystack_currency',
                 'value' => 'NGN',
                 'type' => 'string',
-                'group' => 'paystack',
+                'group' => 'apis',
                 'description' => 'Currency for Paystack transactions (e.g. NGN, USD)',
             ],
 
@@ -202,6 +202,57 @@ class AdminSettingSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'legal',
                 'description' => 'Privacy Policy page content (HTML allowed)',
+            ],
+
+            // === Rewards & Commissions ===
+            [
+                'key' => 'daily_login_base_bonus',
+                'value' => '1',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Base amount earned for daily login (in USD)',
+            ],
+            [
+                'key' => 'daily_login_streak_bonus_per_week',
+                'value' => '0.5',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Extra bonus earned per week of consecutive login streak (in USD)',
+            ],
+            [
+                'key' => 'daily_login_max_streak_weeks',
+                'value' => '10',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Maximum weeks of streak bonus that can accumulate',
+            ],
+            [
+                'key' => 'leaderboard_reward_percentage',
+                'value' => '10',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Percentage bonus awarded to the top earner on the leaderboard',
+            ],
+            [
+                'key' => 'referral_commission_rate',
+                'value' => '10',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Level 1 referral commission percentage',
+            ],
+            [
+                'key' => 'referral_level2_rate',
+                'value' => '3',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Level 2 referral commission percentage',
+            ],
+            [
+                'key' => 'referral_level3_rate',
+                'value' => '1',
+                'type' => 'number',
+                'group' => 'rewards',
+                'description' => 'Level 3 referral commission percentage',
             ],
         ];
 

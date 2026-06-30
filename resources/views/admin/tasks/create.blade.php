@@ -107,6 +107,21 @@
                             <input type="number" name="total_slots" value="{{ old('total_slots', 0) }}" min="0" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select name="category" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="general" @if(old('category', 'general') === 'general') selected @endif>General</option>
+                                <option value="daily" @if(old('category') === 'daily') selected @endif>🔥 Daily</option>
+                                <option value="premium" @if(old('category') === 'premium') selected @endif>💎 Premium</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Featured</label>
+                            <select name="is_featured" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="0">No</option>
+                                <option value="1" @if(old('is_featured') == 1) selected @endif>⭐ Yes</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select name="status" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 <option value="active">Active</option>

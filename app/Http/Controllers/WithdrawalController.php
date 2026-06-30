@@ -56,6 +56,16 @@ class WithdrawalController extends Controller
             'account_name' => ['required', 'string', 'max:255'],
         ]);
 
+        // Security: check withdrawal cooldown
+        if ($user->isWithdrawalOnCooldown()) {
+            return back()->with('error', 'Withdrawal is on cooldown. Please try again after ' . $user->withdrawal_cooldown_until->diffForHumans() . '.')->withInput();
+        }
+
+        // Security: check phone is verified
+        if (!$user->isPhoneVerified()) {
+            return back()->with('error', 'Please verify your phone number before making a withdrawal. Contact support to verify.')->withInput();
+        }
+
         if ($request->amount > $user->balance) {
             return back()->with('error', 'Insufficient balance.')->withInput();
         }
@@ -63,6 +73,12 @@ class WithdrawalController extends Controller
         $pendingCount = $user->withdrawals()->where('status', 'pending')->count();
         if ($pendingCount > 0) {
             return back()->with('error', 'You already have a pending withdrawal request. Please wait for it to be processed.')->withInput();
+        }
+
+        // Security: rate limit withdrawals (max 3 per day)
+        $todayWithdrawals = $user->withdrawals()->whereDate('created_at', today())->count();
+        if ($todayWithdrawals >= 3) {
+            return back()->with('error', 'You have reached the daily withdrawal limit (3 per day). Please try again tomorrow.')->withInput();
         }
 
         // Verify account via Paystack
@@ -103,6 +119,9 @@ class WithdrawalController extends Controller
             'description' => "Withdrawal request via " . str_replace('_', ' ', $request->payout_method),
             'reference' => $withdrawal->reference,
         ]);
+
+        // Set withdrawal cooldown (anti-fraud)
+        $user->setWithdrawalCooldown(24);
 
         return redirect()->route('withdrawals.index')
             ->with('success', 'Withdrawal request submitted! Your request of ' . currency($request->amount) . ' is pending admin approval.');

@@ -46,12 +46,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Bank</label>
-                        <select name="bank_code" id="bank_code" x-model="bankCode" @change="resolveAccount()" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Select your bank</option>
-                            @foreach($banks as $bank)
-                                <option value="{{ $bank['code'] }}" @if(old('bank_code', Auth::user()->bank_code) == $bank['code']) selected @endif>{{ $bank['name'] }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <input type="text" x-model="search" @input="open = true" @focus="open = true" @click.away="open = false"
+                                   placeholder="Search for your bank..."
+                                   class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <input type="hidden" name="bank_code" x-model="bankCode">
+                            <div x-show="open && filteredBanks.length > 0" x-cloak
+                                 class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                                <template x-for="bank in filteredBanks" :key="bank.code">
+                                    <button type="button" @click="selectBank(bank)"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-gray-50 last:border-0"
+                                            :class="bankCode === bank.code ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-700'">
+                                        <span x-text="bank.name"></span>
+                                    </button>
+                                </template>
+                            </div>
+                            <div x-show="open && search && filteredBanks.length === 0" x-cloak
+                                 class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-400 text-center">
+                                No banks found
+                            </div>
+                        </div>
+                        <template x-if="selectedBankName">
+                            <p class="text-xs text-green-600 mt-1.5 flex items-center">
+                                <svg class="w-3.5 h-3.5 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span x-text="selectedBankName"></span>
+                            </p>
+                        </template>
                         @error('bank_code') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
@@ -122,9 +142,29 @@
 @push('scripts')
 <script>
     function withdrawalForm() {
+        const allBanks = @json($banks);
         const user = @json(['bank_code' => Auth::user()->bank_code, 'bank_account_number' => Auth::user()->bank_account_number, 'bank_account_name' => Auth::user()->bank_account_name]);
-        return {
-            bankCode: '{{ old('bank_code') }}' || user.bank_code || '',
+        const savedCode = '{{ old('bank_code') }}' || user.bank_code || '';
+        const savedBank = allBanks.find(b => b.code === savedCode);
+        const instance = {
+            // Bank search
+            search: savedBank ? savedBank.name : '',
+            bankCode: savedCode,
+            open: false,
+            selectedBankName: savedBank ? savedBank.name : '',
+            get filteredBanks() {
+                if (!this.search) return allBanks;
+                const q = this.search.toLowerCase();
+                return allBanks.filter(b => b.name.toLowerCase().includes(q));
+            },
+            selectBank(bank) {
+                this.bankCode = bank.code;
+                this.search = bank.name;
+                this.selectedBankName = bank.name;
+                this.open = false;
+                this.resolveAccount();
+            },
+            // Withdrawal form
             accountNumber: '{{ old('account_number') }}' || user.bank_account_number || '',
             accountName: '{{ old('account_name') }}' || user.bank_account_name || '',
             verifying: false,
@@ -166,7 +206,9 @@
                 }
                 this.verifying = false;
             }
-        }
+        };
+        window.withdrawalFormInstance = instance;
+        return instance;
     }
 </script>
 @endpush

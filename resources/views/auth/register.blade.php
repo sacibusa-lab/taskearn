@@ -22,6 +22,18 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
+                {{-- Anti-bot: honeypot (hidden from users, bots fill it) --}}
+                <div style="position:absolute;left:-9999px" aria-hidden="true">
+                    <label for="website">Website</label>
+                    <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                {{-- Anti-bot: form start timestamp --}}
+                <input type="hidden" name="form_started_at" id="form_started_at" value="">
+
+                {{-- Device fingerprint --}}
+                <input type="hidden" name="device_fingerprint" id="device_fingerprint" value="">
+
                 <div>
                     <x-input-label for="referral_code" :value="__('Referral Code')" />
                     <x-text-input id="referral_code" class="block mt-1 w-full" type="text" name="referral_code" :value="old('referral_code', request('ref'))" required placeholder="Enter referral code" />
@@ -111,4 +123,40 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    // Record form start time (anti-bot)
+    document.getElementById('form_started_at').value = Math.floor(Date.now() / 1000);
+
+    // Generate device fingerprint
+    (function() {
+        function getFingerprint() {
+            const parts = [];
+            // Screen info
+            parts.push(screen.width + 'x' + screen.height);
+            parts.push(screen.colorDepth);
+            // Timezone
+            parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+            // Language
+            parts.push(navigator.language);
+            // Platform
+            parts.push(navigator.platform || '');
+            // Hardware concurrency
+            parts.push(navigator.hardwareConcurrency || '');
+            // Device memory
+            parts.push(navigator.deviceMemory || '');
+            // Simple hash
+            const str = parts.join('|');
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return 'fp_' + Math.abs(hash).toString(36);
+        }
+        document.getElementById('device_fingerprint').value = getFingerprint();
+    })();
+</script>
+@endpush
 @endsection

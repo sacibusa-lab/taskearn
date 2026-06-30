@@ -86,8 +86,10 @@ class AchievementService
      */
     public static function dailyLoginBonus(User $user): float
     {
-        $baseBonus = 1; // Base bonus per day
-        $streakBonus = min(floor($user->login_streak / 7), 10) * 0.5; // Extra for streaks
+        $baseBonus = (float) \App\Models\AdminSetting::getValue('daily_login_base_bonus', 1);
+        $streakPerWeek = (float) \App\Models\AdminSetting::getValue('daily_login_streak_bonus_per_week', 0.5);
+        $maxWeeks = (int) \App\Models\AdminSetting::getValue('daily_login_max_streak_weeks', 10);
+        $streakBonus = min(floor($user->login_streak / 7), $maxWeeks) * $streakPerWeek;
         $bonus = $baseBonus + $streakBonus;
 
         $user->increment('balance', $bonus);

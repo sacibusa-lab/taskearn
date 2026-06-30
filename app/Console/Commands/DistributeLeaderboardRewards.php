@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 class DistributeLeaderboardRewards extends Command
 {
     protected $signature = 'leaderboard:reward {period=week : week or month}';
-    protected $description = 'Award 10% bonus to the top earner of the period';
+    protected $description = 'Award a percentage bonus to the top earner of the period (configurable via admin settings)';
 
     public function handle(): void
     {
@@ -45,7 +45,8 @@ class DistributeLeaderboardRewards extends Command
         }
 
         $periodEarnings = $topEarner->transactions_sum_amount;
-        $bonus = round($periodEarnings * 0.1, 2);
+        $rewardPct = (float) \App\Models\AdminSetting::getValue('leaderboard_reward_percentage', 10);
+        $bonus = round($periodEarnings * ($rewardPct / 100), 2);
 
         $topEarner->increment('balance', $bonus);
         $topEarner->increment('total_earned', $bonus);
@@ -56,17 +57,17 @@ class DistributeLeaderboardRewards extends Command
             'balance_before' => $topEarner->balance - $bonus,
             'balance_after' => $topEarner->balance,
             'status' => 'completed',
-            'description' => "🏆 Top earner {$period}ly bonus — 10% of " . currency($periodEarnings),
+            'description' => "🏆 Top earner {$period}ly bonus — {$rewardPct}% of " . currency($periodEarnings),
         ]);
 
         NotificationService::send(
             $topEarner->id,
             'festive_reward',
             "🏆 You're the {$period}ly Top Earner!",
-            "Congratulations! You earned a 10% bonus of " . currency($bonus) . " for being the highest earner this {$period}.",
+            "Congratulations! You earned a {$rewardPct}% bonus of " . currency($bonus) . " for being the highest earner this {$period}.",
             route('leaderboard.index')
         );
 
-        $this->info("✅ {$period}ly reward: {$topEarner->display_name} earned " . currency($periodEarnings) . " → 10% bonus of " . currency($bonus) . " awarded.");
+        $this->info("✅ {$period}ly reward: {$topEarner->display_name} earned " . currency($periodEarnings) . " → {$rewardPct}% bonus of " . currency($bonus) . " awarded.");
     }
 }

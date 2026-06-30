@@ -15,7 +15,9 @@ use Illuminate\Support\Str;
     'is_probation', 'probation_ends_at', 'referred_by',
     'balance', 'referral_earnings', 'total_earned', 'total_withdrawn',
     'bank_name', 'bank_account_number', 'bank_account_name', 'bank_code',
-    'is_admin', 'status', 'referral_code', 'deposited_at',
+    'is_admin', 'status', 'referral_code', 'deposited_at', 'deposit_locked_until',
+    'device_fingerprint', 'device_fingerprinted_at', 'registered_ip',
+    'last_login_ip', 'last_user_agent', 'phone_verified_at', 'withdrawal_cooldown_until',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -50,6 +52,9 @@ class User extends Authenticatable
             'total_withdrawn' => 'decimal:2',
             'login_streak' => 'integer',
             'last_login_date' => 'date',
+            'device_fingerprinted_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
+            'withdrawal_cooldown_until' => 'datetime',
         ];
     }
 
@@ -252,5 +257,74 @@ class User extends Authenticatable
     public function canPerformTasks(): bool
     {
         return $this->hasDeposited() && $this->hasCompletedProbation();
+    }
+
+    // ========================
+    // Security Methods
+    // ========================
+
+    /**
+     * Check if this phone has been registered from a different device fingerprint.
+     */
+    public static function isPhoneOnDifferentDevice(string $phone, string $fingerprint): bool
+    {
+        return static::where('phone', $phone)
+            ->where('device_fingerprint', '!=', $fingerprint)
+            ->whereNotNull('device_fingerprint')
+            ->exists();
+    }
+
+    /**
+     * Check if this device fingerprint has multiple accounts.
+     */
+    public static function deviceAccountCount(string $fingerprint): int
+    {
+        return static::where('device_fingerprint', $fingerprint)->count();
+    }
+
+    /**
+     * Record device fingerprint after registration.
+     */
+    public function recordDeviceFingerprint(string $fingerprint): void
+    {
+        $this->update([
+            'device_fingerprint' => $fingerprint,
+            'device_fingerprinted_at' => now(),
+        ]);
+    }
+
+    /**
+     * Track login IP and user agent.
+     */
+    public function trackLogin(string $ip, string $userAgent): void
+    {
+        $this->update([
+            'last_login_ip' => $ip,
+            'last_user_agent' => $userAgent,
+        ]);
+    }
+
+    /**
+     * Check if withdrawal is currently on cooldown.
+     */
+    public function isWithdrawalOnCooldown(): bool
+    {
+        return $this->withdrawal_cooldown_until && now()->lessThan($this->withdrawal_cooldown_until);
+    }
+
+    /**
+     * Set withdrawal cooldown.
+     */
+    public function setWithdrawalCooldown(int $hours = 24): void
+    {
+        $this->update(['withdrawal_cooldown_until' => now()->addHours($hours)]);
+    }
+
+    /**
+     * Check if phone is verified.
+     */
+    public function isPhoneVerified(): bool
+    {
+        return $this->phone_verified_at !== null;
     }
 }

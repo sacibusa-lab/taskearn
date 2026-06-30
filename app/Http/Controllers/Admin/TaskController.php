@@ -25,25 +25,18 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => [($request->task_type === 'youtube' ? 'nullable' : 'required'), 'string', 'max:255'],
-            'description' => [($request->task_type === 'youtube' ? 'nullable' : 'required'), 'string'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
-            'task_type' => ['required', 'string', 'in:text,url,youtube,video,image,file,social_share,quiz,code,custom'],
+            'task_type' => ['required', 'string', 'in:youtube'],
             'reward' => ['required', 'numeric', 'min:0.01'],
             'estimated_minutes' => ['required', 'integer', 'min:1'],
             'level_id' => ['nullable', 'exists:levels,id'],
             'total_slots' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
-            // Type-specific meta fields
+            'category' => ['required', 'in:general,daily,premium'],
+            'is_featured' => ['nullable', 'boolean'],
             'meta_url' => ['nullable', 'string', 'max:2000'],
-            'meta_platform' => ['nullable', 'string', 'max:100'],
-            'meta_question' => ['nullable', 'string', 'max:2000'],
-            'meta_answer' => ['nullable', 'string', 'max:2000'],
-            'meta_options' => ['nullable', 'string', 'max:5000'],
-            'meta_file_types' => ['nullable', 'string', 'max:500'],
-            'meta_max_size' => ['nullable', 'integer', 'min:1'],
-            'meta_code_language' => ['nullable', 'string', 'max:100'],
-            'meta_social_platform' => ['nullable', 'string', 'max:100'],
         ]);
 
         // Build task_meta from type-specific fields
@@ -71,6 +64,8 @@ class TaskController extends Controller
             'total_slots' => $request->total_slots,
             'remaining_slots' => $request->total_slots,
             'status' => $request->status,
+            'category' => $request->category ?? 'general',
+            'is_featured' => $request->boolean('is_featured'),
         ]);
 
         return redirect()->route('admin.tasks.index')->with('success', 'Task created successfully.');
@@ -83,48 +78,10 @@ class TaskController extends Controller
     {
         $meta = [];
 
-        switch ($request->task_type) {
-            case 'url':
-                if ($request->meta_url) $meta['url'] = $request->meta_url;
-                break;
-            case 'youtube':
-                if ($request->meta_url) {
-                    $meta['url'] = $request->meta_url;
-                    // Extract video ID from various YouTube URL formats
-                    $videoId = $this->extractYoutubeId($request->meta_url);
-                    if ($videoId) $meta['video_id'] = $videoId;
-                }
-                break;
-            case 'video':
-                if ($request->meta_url) $meta['url'] = $request->meta_url;
-                if ($request->meta_platform) $meta['platform'] = $request->meta_platform;
-                break;
-            case 'image':
-                if ($request->meta_file_types) $meta['file_types'] = $request->meta_file_types;
-                if ($request->meta_max_size) $meta['max_size'] = $request->meta_max_size;
-                break;
-            case 'file':
-                if ($request->meta_file_types) $meta['file_types'] = $request->meta_file_types;
-                if ($request->meta_max_size) $meta['max_size'] = $request->meta_max_size;
-                break;
-            case 'quiz':
-                if ($request->meta_question) $meta['question'] = $request->meta_question;
-                if ($request->meta_answer) $meta['answer'] = $request->meta_answer;
-                if ($request->meta_options) {
-                    $meta['options'] = array_map('trim', explode("\n", $request->meta_options));
-                }
-                break;
-            case 'social_share':
-                if ($request->meta_url) $meta['url'] = $request->meta_url;
-                if ($request->meta_social_platform) $meta['social_platform'] = $request->meta_social_platform;
-                break;
-            case 'code':
-                if ($request->meta_code_language) $meta['code_language'] = $request->meta_code_language;
-                if ($request->meta_url) $meta['url'] = $request->meta_url;
-                break;
-            case 'custom':
-                if ($request->meta_url) $meta['url'] = $request->meta_url;
-                break;
+        if ($request->meta_url) {
+            $meta['url'] = $request->meta_url;
+            $videoId = $this->extractYoutubeId($request->meta_url);
+            if ($videoId) $meta['video_id'] = $videoId;
         }
 
         return !empty($meta) ? $meta : null;
@@ -156,26 +113,17 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $request->validate([
-            'title' => [($request->task_type === 'youtube' ? 'nullable' : 'required'), 'string', 'max:255'],
-            'description' => [($request->task_type === 'youtube' ? 'nullable' : 'required'), 'string'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
-            'task_type' => ['required', 'string', 'in:text,url,youtube,video,image,file,social_share,quiz,code,custom'],
+            'task_type' => ['required', 'string', 'in:youtube'],
             'reward' => ['required', 'numeric', 'min:0.01'],
             'estimated_minutes' => ['required', 'integer', 'min:1'],
             'level_id' => ['nullable', 'exists:levels,id'],
             'total_slots' => ['required', 'integer', 'min:0'],
             'remaining_slots' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
-            // Type-specific meta fields
             'meta_url' => ['nullable', 'string', 'max:2000'],
-            'meta_platform' => ['nullable', 'string', 'max:100'],
-            'meta_question' => ['nullable', 'string', 'max:2000'],
-            'meta_answer' => ['nullable', 'string', 'max:2000'],
-            'meta_options' => ['nullable', 'string', 'max:5000'],
-            'meta_file_types' => ['nullable', 'string', 'max:500'],
-            'meta_max_size' => ['nullable', 'integer', 'min:1'],
-            'meta_code_language' => ['nullable', 'string', 'max:100'],
-            'meta_social_platform' => ['nullable', 'string', 'max:100'],
         ]);
 
         $taskMeta = $this->buildTaskMeta($request);

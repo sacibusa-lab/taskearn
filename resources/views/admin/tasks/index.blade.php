@@ -16,6 +16,7 @@
                     <tr class="text-left text-gray-500 border-b border-gray-100 bg-gray-50">
                         <th class="px-6 py-3 font-medium">Title</th>
                         <th class="px-6 py-3 font-medium">Type</th>
+                        <th class="px-6 py-3 font-medium">Category</th>
                         <th class="px-6 py-3 font-medium">Level</th>
                         <th class="px-6 py-3 font-medium">Reward</th>
                         <th class="px-6 py-3 font-medium">Slots</th>
@@ -30,6 +31,19 @@
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $task->title }}</td>
                             <td class="px-6 py-4">
                                 <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium">{{ $task->task_type_label }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-1.5">
+                                    @if($task->is_featured)
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">⭐ Featured</span>
+                                    @endif
+                                    <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                                        @if($task->category === 'daily') bg-orange-100 text-orange-700
+                                        @elseif($task->category === 'premium') bg-purple-100 text-purple-700
+                                        @else bg-gray-100 text-gray-600 @endif">
+                                        {{ $task->category_label }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-6 py-4">@if($task->level) Level {{ $task->level->level }} @else All @endif</td>
                             <td class="px-6 py-4 text-green-600 font-medium">{{ currency($task->reward) }}</td>
